@@ -26,6 +26,36 @@ See the classroom instruction and code comments for more details on each of thes
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 
+If you already got some other opencv version, you first can uninstall it (e.g. via `make`):  
+```
+cd ~/opencv/build
+sudo make uninstall
+cd .. && sudo rm -r build
+cd && sudo rm -r /usr/include/opencv2 /usr/include/opencv /usr/include/opencv /usr/include/opencv2 /usr/share/opencv /usr/share/OpenCV /usr/share/opencv /usr/share/OpenCV /usr/bin/opencv* /usr/lib/libopencv* /usr/local/include/opencv2 /usr/local/include/opencv /usr/local/include/opencv /usr/local/include/opencv2 /usr/local/share/opencv /usr/local/share/OpenCV /usr/local/share/opencv /usr/local/share/OpenCV /usr/local/bin/opencv* /usr/local/lib/libopencv* 
+```  
+
+And then build a actual version along with opencv-contrib:  
+```
+git clone --depth 10 --branch 4.1.0 https://github.com/opencv/opencv ~/opencv
+git clone --depth 10 --branch 4.1.0 https://github.com/opencv/opencv_contrib ~/opencv_contrib
+mkdir -p ~/opencv/build && cd ~/opencv/build
+sudo cmake -D CMAKE_BUILD_TYPE=RELEASE \
+           -D CMAKE_INSTALL_PREFIX=/usr/local/ \
+           -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
+           -D OPENCV_ENABLE_NONFREE=ON \
+           -D WITH_IPP=OFF \
+           -D WITH_CUDA=OFF \
+           -D WITH_OPENCL=ON \
+           -D BUILD_TESTS=ON \
+           -D BUILD_PERF_TESTS=OFF \
+           -D INSTALL_PYTHON_EXAMPLES=ON \
+           -D OPENCV_GENERATE_PKGCONFIG=ON \
+           ..
+sudo make -j"$(nproc)" install
+sudo ldconfig
+rm -rf ~/.cache/*  
+```  
+
 ## Basic Build Instructions
 
 1. Clone this repo.

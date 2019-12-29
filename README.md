@@ -26,6 +26,8 @@ See the classroom instruction and code comments for more details on each of thes
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 
+### OpenCV installation for Linux  
+
 If you already got some other opencv version, you first can uninstall it (e.g. via `make`):  
 ```
 cd ~/opencv/build

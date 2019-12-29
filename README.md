@@ -33,7 +33,12 @@ If you already got some other opencv version, you first can uninstall it (e.g. v
 cd ~/opencv/build
 sudo make uninstall
 cd .. && sudo rm -r build
-cd && sudo rm -r /usr/include/opencv2 /usr/include/opencv /usr/include/opencv /usr/include/opencv2 /usr/share/opencv /usr/share/OpenCV /usr/share/opencv /usr/share/OpenCV /usr/bin/opencv* /usr/lib/libopencv* /usr/local/include/opencv2 /usr/local/include/opencv /usr/local/include/opencv /usr/local/include/opencv2 /usr/local/share/opencv /usr/local/share/OpenCV /usr/local/share/opencv /usr/local/share/OpenCV /usr/local/bin/opencv* /usr/local/lib/libopencv* 
+cd && sudo rm -r /usr/include/opencv2 /usr/include/opencv /usr/include/opencv /usr/include/opencv2 \
+                 /usr/share/opencv /usr/share/OpenCV /usr/share/opencv /usr/share/OpenCV /usr/bin/opencv* \
+                 /usr/lib/libopencv* /usr/local/include/opencv2 /usr/local/include/opencv \
+                 /usr/local/include/opencv /usr/local/include/opencv2 /usr/local/share/opencv \
+                 /usr/local/share/OpenCV /usr/local/share/opencv /usr/local/share/OpenCV \
+                 /usr/local/bin/opencv* /usr/local/lib/libopencv* 
 ```  
 
 And then build a actual version along with opencv-contrib:  

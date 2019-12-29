@@ -41,7 +41,7 @@ cd && sudo rm -r /usr/include/opencv2 /usr/include/opencv /usr/include/opencv /u
                  /usr/local/bin/opencv* /usr/local/lib/libopencv* 
 ```  
 
-And then build a actual version along with opencv-contrib:  
+And then build an actual version along with the opencv-contrib:  
 ```
 git clone --depth 10 --branch 4.1.0 https://github.com/opencv/opencv ~/opencv
 git clone --depth 10 --branch 4.1.0 https://github.com/opencv/opencv_contrib ~/opencv_contrib

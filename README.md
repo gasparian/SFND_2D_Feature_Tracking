@@ -63,7 +63,7 @@ sudo ldconfig
 rm -rf ~/.cache/*  
 ```  
 
-## Basic Build Instructions
+## Project build Instructions  
 
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`

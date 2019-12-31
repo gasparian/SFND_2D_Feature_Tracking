@@ -23,7 +23,13 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+        if (descSource.type() != CV_32F)
+        // https://answers.opencv.org/question/503/how-to-use-the-lshindexparams/
+        { // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+            descSource.convertTo(descSource, CV_32F);
+            descRef.convertTo(descRef, CV_32F);
+        }
+        matcher = cv::FlannBasedMatcher::create();
     }
 
     // perform matching task
@@ -35,12 +41,25 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
 
-        // ...
+        // double t = (double)cv::getTickCount();
+        vector<vector<cv::DMatch>> knn_matches;
+        matcher->knnMatch(descSource, descRef, knn_matches, 2);
+        // t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+        // cout << " (KNN) with n=" << knn_matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+      
+        // filter matches using descriptor distance ratio test
+        // fill in `matches` vector
+        double minDescDistRatio = 0.8;
+        for ( auto it=knn_matches.begin(); it != knn_matches.end(); ++it ) {
+          float ratio = (*it)[0].distance / (*it)[1].distance;
+          if ( ratio > minDescDistRatio )
+            matches.push_back((*it)[0]);
+        }
     }
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
-void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
+void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &mask, cv::Mat &descriptors, string descriptorType)
 {
     // select appropriate descriptor
     cv::Ptr<cv::DescriptorExtractor> extractor;
@@ -65,7 +84,11 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
         int threshold = 20;
         int octaves = 4;
         float patternScale = 1.2f;
-        extractor = cv::ORB::create(maxFeatures, patternScale, octaves, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, threshold);
+        int edgeThreshold = 31;
+        int firstLevel = 0;
+        int WTA_K = 2;
+        int patchSize = 31;
+        extractor = cv::ORB::create(maxFeatures, patternScale, octaves, edgeThreshold, firstLevel, WTA_K, cv::ORB::HARRIS_SCORE, patchSize, threshold);
     }
     else if (descriptorType.compare("FREAK") == 0)
     {
@@ -75,14 +98,7 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
     }
     else if (descriptorType.compare("AKAZE") == 0)
     {
-        cv::AKAZE::DescriptorType descriptor_type = cv::AKAZE::DESCRIPTOR_MLDB;
-        int descriptor_size = 128;
-        int descriptor_channels = 3;
-        float threshold = 0.001f;
-        int nOctaves = 4;
-        int nOctaveLayers = 4;
-        cv::KAZE::DiffusivityType diffusivity = cv::KAZE::DIFF_PM_G2;
-        extractor = cv::AKAZE::create(descriptor_type, descriptor_size, descriptor_channels, threshold, nOctaves, nOctaveLayers, diffusivity);
+        extractor = cv::AKAZE::create();
     }
     else if (descriptorType.compare("SIFT") == 0)
     {
@@ -95,7 +111,10 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 
     // perform feature description
     double t = (double)cv::getTickCount();
-    extractor->compute(img, keypoints, descriptors);
+    if (descriptorType.compare("AKAZE") == 0)
+        extractor->detectAndCompute(img, mask, keypoints, descriptors, true);
+    else
+        extractor->compute(img, keypoints, descriptors);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
 }

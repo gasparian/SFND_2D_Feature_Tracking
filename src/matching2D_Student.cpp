@@ -10,12 +10,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     // configure matcher
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
-    int normType = cv::NORM_L2;
-
-    if ( descriptorType.compare("DES_BINARY") == 0 ) 
-    {
-        int normType = cv::NORM_HAMMING;
-    } 
+    int normType = descriptorType.compare("DES_BINARY") == 0 ? cv::NORM_HAMMING : cv::NORM_L2;
 
     if (matcherType.compare("MAT_BF") == 0) 
     {
@@ -23,19 +18,23 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        if (descSource.type() != CV_32F)
         // https://answers.opencv.org/question/503/how-to-use-the-lshindexparams/
-        { // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+        // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+        if (descSource.type() != CV_32F)
+        { 
             descSource.convertTo(descSource, CV_32F);
+        }
+        if (descRef.type() != CV_32F)
+        {
             descRef.convertTo(descRef, CV_32F);
         }
+        
         matcher = cv::FlannBasedMatcher::create();
     }
 
     // perform matching task
     if (selectorType.compare("SEL_NN") == 0)
     { // nearest neighbor (best match)
-
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
     }
     else if (selectorType.compare("SEL_KNN") == 0)

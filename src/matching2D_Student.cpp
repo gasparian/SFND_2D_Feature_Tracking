@@ -33,18 +33,18 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
 
     // perform matching task
+    double t = (double)cv::getTickCount();
     if (selectorType.compare("SEL_NN") == 0)
     { // nearest neighbor (best match)
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
+        t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+        cout << "Matching (NN) with n = " << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
 
-        // double t = (double)cv::getTickCount();
         vector<vector<cv::DMatch>> knn_matches;
         matcher->knnMatch(descSource, descRef, knn_matches, 2);
-        // t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-        // cout << " (KNN) with n=" << knn_matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
       
         // filter matches using descriptor distance ratio test
         // fill in `matches` vector
@@ -54,11 +54,13 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
           if ( ratio > minDescDistRatio )
             matches.push_back((*it)[0]);
         }
+        t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+        cout << "Matching (KNN) with n = " << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
     }
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
-void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &mask, cv::Mat &descriptors, string descriptorType)
+void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
 {
     // select appropriate descriptor
     cv::Ptr<cv::DescriptorExtractor> extractor;
@@ -103,17 +105,15 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &mask,
     {
         int nfeatures = 0;
         int threshold = 10;
-        int octaves = 3;       
+        double contrastThreshold = 0.04;
+        int octaves = 3;
         double sigma = 1.6;
-        extractor = cv::xfeatures2d::SIFT::create(nfeatures, octaves, 0.04, threshold, sigma);
+        extractor = cv::xfeatures2d::SIFT::create(nfeatures, octaves, contrastThreshold, threshold, sigma);
     }
 
     // perform feature description
     double t = (double)cv::getTickCount();
-    if (descriptorType.compare("AKAZE") == 0)
-        extractor->detectAndCompute(img, mask, keypoints, descriptors, true);
-    else
-        extractor->compute(img, keypoints, descriptors);
+    extractor->compute(img, keypoints, descriptors);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
 }

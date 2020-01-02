@@ -19,6 +19,8 @@
 using namespace std;
 
 // https://docs.opencv.org/3.4/d5/d51/group__features2d__main.html
+// https://docs.opencv.org/master/da/df5/tutorial_py_sift_intro.html
+
 /* MAIN PROGRAM */
 int main(int argc, const char *argv[])
 {
@@ -62,15 +64,14 @@ int main(int argc, const char *argv[])
         frame.cameraImg = imgGray;
         dataBuffer.add(frame);
 
-        cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
+        cout << "\n#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
         /* DETECT IMAGE KEYPOINTS */
 
         // extract 2D keypoints from current image
-        vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "ORB";
 
-        //// Detectors: HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+        vector<cv::KeyPoint> keypoints; // create empty feature list for current image
+        string detectorType = "AKAZE"; // HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
         if ( detectorType.compare("SHITOMASI") == 0 )
         {
@@ -88,18 +89,19 @@ int main(int argc, const char *argv[])
         // only keep keypoints on the preceding vehicle (static bbox)
         bool bFocusOnVehicle = true;
         cv::Rect vehicleRect(535, 180, 180, 150);
-        cv::Mat mask = cv::Mat::ones(imgGray.size(), imgGray.type());
         if (bFocusOnVehicle)
         {
-            cv::KeyPoint newKeyPoint;
+            vector<cv::KeyPoint> kptTmp;
             for ( cv::KeyPoint& kpt : keypoints )
             {
-                if (!( (kpt.pt.x >= vehicleRect.x) && (kpt.pt.x <= (vehicleRect.x+vehicleRect.width)) &&
-                       (kpt.pt.y >= vehicleRect.y) && (kpt.pt.y <= (vehicleRect.y+vehicleRect.height)) )) {
-                        kpt = newKeyPoint;
-                        mask.at<unsigned char>(static_cast<unsigned char>(kpt.pt.y), static_cast<unsigned char>(kpt.pt.x)) = 0;
-                     }
+                if ( (kpt.pt.x >= vehicleRect.x) && (kpt.pt.x <= (vehicleRect.x+vehicleRect.width)) &&
+                     (kpt.pt.y >= vehicleRect.y) && (kpt.pt.y <= (vehicleRect.y+vehicleRect.height)) ) {
+                        kptTmp.push_back(kpt);
+                }
+                
             }
+            keypoints = kptTmp;
+            cout << " NOTE: Keypoints have been limited by the ROI: " << keypoints.size() << endl;
         }
 
         // optional : limit number of keypoints (helpful for debugging and learning)
@@ -116,6 +118,21 @@ int main(int argc, const char *argv[])
             cout << " NOTE: Keypoints have been limited!" << "; " << keypoints.size() << endl;
         }
 
+        // calculate distribution of keypoints size
+        bool getSizes = true;
+        vector<float> neighborhoodSizes;
+        float kptSizeMedian = -1;
+        if ( getSizes ) {
+            for ( cv::KeyPoint& kpt : keypoints ) {
+                if (kpt.size)
+                    neighborhoodSizes.push_back(kpt.size);
+            }
+            sort(neighborhoodSizes.begin(), neighborhoodSizes.end());
+            kptSizeMedian = neighborhoodSizes[neighborhoodSizes.size() / 2];
+
+            cout << "Detected kypoints median neighborhood size: " << kptSizeMedian << endl;
+        }
+        
         // push keypoints and descriptor for current frame to end of data buffer
         dataBuffer.getItem(1)->keypoints = keypoints;
         cout << "#2 : DETECT KEYPOINTS done" << endl;
@@ -125,8 +142,8 @@ int main(int argc, const char *argv[])
         //// Descriptors: BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRIEF"; // BRIEF, ORB, FREAK, AKAZE, SIFT
-        descKeypoints(dataBuffer.getItem(1)->keypoints, dataBuffer.getItem(1)->cameraImg, mask, descriptors, descriptorType);
+        string descriptorType = "SIFT"; // BRIEF, ORB, FREAK, AKAZE, SIFT
+        descKeypoints(dataBuffer.getItem(1)->keypoints, dataBuffer.getItem(1)->cameraImg, descriptors, descriptorType);
 
         // push descriptors for current frame to end of data buffer
         dataBuffer.getItem(1)->descriptors = descriptors;
@@ -139,8 +156,8 @@ int main(int argc, const char *argv[])
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_FLANN"; // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY (BRISK, BRIEF, ORB, FREAK); DES_HOG (SIFT); Makes sense only in BF mode
+            string matcherType = "MAT_BF"; // MAT_BF, MAT_FLANN
+            string descriptorType = "DES_HOG"; // DES_BINARY (BRIEF, ORB, FREAK, AKAZE); DES_HOG (SIFT); Makes sense only in BF mode
             string selectorType = "SEL_KNN"; // SEL_NN, SEL_KNN
 
             matchDescriptors(dataBuffer.getItem(2)->keypoints, dataBuffer.getItem(1)->keypoints,

@@ -95,7 +95,7 @@ SIFT     | 16.51
 
 Detectors and descriptors combinations and average number of matched points:  
 
--------- | BRIEF | ORB  | FREAK | AKAZE | SIFT  
+|  | BRIEF | ORB  | FREAK | AKAZE | SIFT  
 :-------:|:-----:|:----:|:-----:|:-----:|:-----  
 HARRIS   | 2  | 2 | 4  | -     | 2  
 FAST     | 90    | 105  | 164   | -     | 103  

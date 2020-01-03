@@ -72,34 +72,52 @@ rm -rf ~/.cache/*
 
 ## Report  
 
-Detectors comparison:  
+I used given subset of `kitti` images to compare different algorithms for features detection and description, running on CPU.  
 
-Detector | Median keypoints number | Neighborhood median size | Neighborhood mean size | Relative std of neighborhood size | Average time, ms  
+Detectors comparison table:  
+
+Detector | Median keypoints number | Neighborhood median size | Neighborhood mean size | Relative std of neighborhood size | Average processing time, ms  
 :-------:|:----------------:|:------------------------:|:----------------------:|:---------------------------------:|:---------------  
-HARRIS   | 19.5             | 4                        | 4                      | 0    | 17.59  
-**FAST**     | **415**              | 7                        | 7                      | 0    | **4.15**  
-**BRISK**    | **274.5**            | 15.802                   | 22.04                  | **0.66** | **32.46**  
-**ORB**      | **204**              | 50                       | 58.11                  | **0.45** | **10.84**  
-AKAZE    | 162.5            | 5.7                      | 7.68                   | 0.52 | 67.4  
-SIFT     | 135.5            | 3.17                     | 5.05                   | 1.18 | 99.9  
+HARRIS       | 19.5             | 4                        | 4                      | 0        | 17.59  
+**FAST**     | **415**          | 7                        | 7                      | 0        | **4.15**  
+**BRISK**    | **274.5**        | 15.802                   | 22.04                  | **0.66** | **32.46**  
+**ORB**      | **204**          | 50                       | 58.11                  | **0.45** | **10.84**  
+AKAZE        | 162.5            | 5.7                      | 7.68                   | 0.52     | 67.4  
+SIFT         | 135.5            | 3.17                     | 5.05                   | 1.18     | 99.9  
 
-Descriptors comparison:  
+It's worth to say, that detectors which produced keypoints with a small-sized neighborhood, seems to find points on a car's shadow, the road lane and other "unwanted areas". So I think it's better to use detectors which can give keypoints on different scales: BRISK, ORB, AKAZE and, of course, SIFT. This can be roughly estimated by *standard deviation of the neighborhood size*.  
+Let's choose top-3 detectors by the minimum inference time and amount of keypoints in our region of interest. So my top list is: FAST, ORB and BRISK.  
 
-Descriptor | Average time, ms  
-:---------:|:----------------  
+Descriptors comparison table:  
+
+Descriptor     | Average processing time, ms  
+:-------------:|:----------------  
 **BRIEF**      | **2.43**  
 **ORB**        | **3.15**  
-FREAK      | 40.19  
-AKAZE      | 49.68  
+FREAK          | 40.19  
+AKAZE          | 49.68  
 **SIFT**       | **16.51**  
 
-Detectors and descriptors combinations and average number of matched points:  
+Here we keep ORB, BRIEF and SIFT feature extractors, based on proccessing time only.  
+Next table is: average number of matched keypoints on two consecutive frames for all combinations of the detectors and descriptors:  
 
 |        | BRIEF     | ORB      | FREAK   | AKAZE | SIFT  
 :-------:|:---------:|:--------:|:-------:|:-----:|:-----  
 HARRIS   | 2         | 2        | 4       | -     | 2  
-FAST     | 90        | **105**  | **164** | -     | 103  
-BRISK    | **105**   | **109**  | 87      | -     | 94  
-ORB      | 76        | 56       | 27      | -     | 37  
+FAST     | 90        | **105**  | 164     | -     | 103  
+BRISK    | 105       | **109**  | 87      | -     | 94  
+ORB      | **76**    | 56       | 27      | -     | 37  
 AKAZE    | 32        | 34       | 33      | 26    | 24  
 SIFT     | 45        | -        | 71      | -     | 50  
+
+I had problems (runtime errors) at two cases: 
+ - ORB feature extractor refuses to work with SIFT keypoints;
+ - AKAZE descriptors seems be working only with AKAZE keypoints;  
+More on invalid detectors and descriptors combinations in OpenCV [is here](https://github.com/kyamagu/mexopencv/issues/351).  
+
+***Summary:***  
+So I prefer to choose these 3 combinations based on all data I got:  
+ - **FAST+ORB** - the fastest pair which gives large amount of the keypoints;  
+ - **BRISK+ORB** - gives keypoints with large variaty of the neighborhood sizes along with many matched keypoints at the end;  
+ - **ORB+BRIEF** - something in between the previous two combinations: average speed and good keypoints matching result;  
+

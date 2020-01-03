@@ -71,7 +71,7 @@ int main(int argc, const char *argv[])
         // extract 2D keypoints from current image
 
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "SIFT"; // HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+        string detectorType = "ORB"; // HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
         if ( detectorType.compare("SHITOMASI") == 0 )
         {
@@ -150,7 +150,7 @@ int main(int argc, const char *argv[])
         //// Descriptors: BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "SIFT"; // BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType = "BRIEF"; // BRIEF, ORB, FREAK, AKAZE, SIFT
         descKeypoints(dataBuffer.getItem(1)->keypoints, dataBuffer.getItem(1)->cameraImg, descriptors, descriptorType);
 
         // push descriptors for current frame to end of data buffer
@@ -165,7 +165,7 @@ int main(int argc, const char *argv[])
 
             vector<cv::DMatch> matches;
             string matcherType = "MAT_BF"; // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_HOG"; // DES_BINARY (BRIEF, ORB, FREAK, AKAZE); DES_HOG (SIFT); Makes sense only in BF mode
+            string descriptorType = "DES_BINARY"; // DES_BINARY (BRIEF, ORB, FREAK, AKAZE); DES_HOG (SIFT); Makes sense only in BF mode
             string selectorType = "SEL_KNN"; // SEL_NN, SEL_KNN
 
             matchDescriptors(dataBuffer.getItem(2)->keypoints, dataBuffer.getItem(1)->keypoints,

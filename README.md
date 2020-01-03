@@ -72,3 +72,14 @@ rm -rf ~/.cache/*
 
 ## Report  
 
+Detectors comparison:  
+
+Detector | Median keypoints number | Neighborhood median size | Neighborhood mean size | Relative std of neighborhood size | Average time, ms  
+:-------:|:----------------:|:------------------------:|:----------------------:|:---------------------------------:|:---------------  
+HARRIS   | 19.5             | 4                        | 4                      | 0    | 17.59  
+FAST     | 415              | 7                        | 7                      | 0    | 4.15  
+BRISK    | 274.5            | 15.802                   | 22.04                  | 0.66 | 32.46  
+ORB      | 204              | 50                       | 58.11                  | 0.45 | 10.84  
+AKAZE    | 162.5            | 5.7                      | 7.68                   | 0.52 | 67.4  
+SIFT     | 135.5            | 3.17                     | 5.05                   | 1.18 | 99.9  
+

@@ -71,7 +71,7 @@ int main(int argc, const char *argv[])
         // extract 2D keypoints from current image
 
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "AKAZE"; // HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+        string detectorType = "SIFT"; // HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
         if ( detectorType.compare("SHITOMASI") == 0 )
         {
@@ -121,16 +121,24 @@ int main(int argc, const char *argv[])
         // calculate distribution of keypoints size
         bool getSizes = true;
         vector<float> neighborhoodSizes;
-        float kptSizeMedian = -1;
+        float kptSizeMedian = -1, kptSizeStd = 0, kptSizeMean = 0;
         if ( getSizes ) {
             for ( cv::KeyPoint& kpt : keypoints ) {
-                if (kpt.size)
+                if (kpt.size) {
                     neighborhoodSizes.push_back(kpt.size);
+                    kptSizeMean += kpt.size;
+                }
             }
+            kptSizeMean /= neighborhoodSizes.size();
             sort(neighborhoodSizes.begin(), neighborhoodSizes.end());
             kptSizeMedian = neighborhoodSizes[neighborhoodSizes.size() / 2];
 
-            cout << "Detected kypoints median neighborhood size: " << kptSizeMedian << endl;
+            for ( float& s : neighborhoodSizes ) 
+                kptSizeStd += pow(kptSizeMean - s, 2) / neighborhoodSizes.size();
+            kptSizeStd = sqrt(kptSizeStd);
+
+            cout << "Detected kypoints MEDIAN neighborhood size: " << kptSizeMedian 
+                 << "; Size mean: " << kptSizeMean << "; Size std: " << kptSizeStd << endl;
         }
         
         // push keypoints and descriptor for current frame to end of data buffer

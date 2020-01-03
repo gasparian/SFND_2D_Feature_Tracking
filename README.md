@@ -90,14 +90,13 @@ Let's choose top-3 detectors by the minimum inference time and amount of keypoin
 
 Descriptors comparison table:  
 
-Descriptor     | Average 
-               | processing time, ms  
-:-------------:|:----------  
-**BRIEF**      | **2.43**  
-**ORB**        | **3.15**  
-FREAK          | 40.19  
-AKAZE          | 49.68  
-**SIFT**       | **16.51**  
+Descriptor     | Average processing time, ms  
+:-------------:|:---------------------------  
+**BRIEF**      |          **2.43**  
+**ORB**        |          **3.15**  
+FREAK          |           40.19  
+AKAZE          |           49.68  
+**SIFT**       |         **16.51**  
 
 Here we keep ORB, BRIEF and SIFT feature extractors, based on proccessing time only.  
 Next table is: average number of matched keypoints on two consecutive frames for all combinations of the detectors and descriptors:  

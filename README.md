@@ -91,7 +91,7 @@ Let's choose top-3 detectors by the minimum inference time and amount of keypoin
 Descriptors comparison table:  
 
 Descriptor     | Average processing time, ms  
-:-------------:|:----------------  
+:-------------:|:----------  
 **BRIEF**      | **2.43**  
 **ORB**        | **3.15**  
 FREAK          | 40.19  

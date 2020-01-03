@@ -113,6 +113,7 @@ SIFT     | 45        | -        | 71      | -     | 50
 I had problems (runtime errors) at two cases: 
  - ORB feature extractor refuses to work with SIFT keypoints;
  - AKAZE descriptors seems be working only with AKAZE keypoints;  
+  
 More on invalid detectors and descriptors combinations in OpenCV [is here](https://github.com/kyamagu/mexopencv/issues/351).  
 
 ***Summary:***  

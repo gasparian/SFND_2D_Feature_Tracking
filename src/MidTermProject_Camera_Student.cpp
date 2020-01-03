@@ -59,6 +59,9 @@ int main(int argc, const char *argv[])
         img = cv::imread(imgFullFilename);
         cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
 
+        //// STUDENT ASSIGNMENT
+        //// TASK MP.1 -> replace the following code with ring buffer of size dataBufferSize
+
         // push image into data frame buffer
         DataFrame frame;
         frame.cameraImg = imgGray;
@@ -73,6 +76,10 @@ int main(int argc, const char *argv[])
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
         string detectorType = "ORB"; // HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
+        //// STUDENT ASSIGNMENT
+        //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
+        //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+
         if ( detectorType.compare("SHITOMASI") == 0 )
         {
             detKeypointsShiTomasi(keypoints, imgGray, false);
@@ -85,6 +92,12 @@ int main(int argc, const char *argv[])
         {
             detKeypointsModern(keypoints, imgGray, detectorType, false);
         }
+
+
+        //// EOF STUDENT ASSIGNMENT
+
+        //// STUDENT ASSIGNMENT
+        //// TASK MP.3 -> only keep keypoints on the preceding vehicle
 
         // only keep keypoints on the preceding vehicle (static bbox)
         bool bFocusOnVehicle = true;
@@ -103,6 +116,8 @@ int main(int argc, const char *argv[])
             keypoints = kptTmp;
             cout << " NOTE: Keypoints have been limited by the ROI: " << keypoints.size() << endl;
         }
+
+        //// EOF STUDENT ASSIGNMENT
 
         // optional : limit number of keypoints (helpful for debugging and learning)
         bool bLimitKpts = false;
@@ -147,11 +162,14 @@ int main(int argc, const char *argv[])
 
         /* EXTRACT KEYPOINT DESCRIPTORS */
 
-        //// Descriptors: BRIEF, ORB, FREAK, AKAZE, SIFT
+        //// STUDENT ASSIGNMENT
+        //// TASK MP.4 -> add the following descriptors in file matching2D.cpp and enable string-based selection based on descriptorType
+        //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
         string descriptorType = "BRIEF"; // BRIEF, ORB, FREAK, AKAZE, SIFT
         descKeypoints(dataBuffer.getItem(1)->keypoints, dataBuffer.getItem(1)->cameraImg, descriptors, descriptorType);
+        //// EOF STUDENT ASSIGNMENT
 
         // push descriptors for current frame to end of data buffer
         dataBuffer.getItem(1)->descriptors = descriptors;
@@ -168,9 +186,15 @@ int main(int argc, const char *argv[])
             string descriptorType = "DES_BINARY"; // DES_BINARY (BRIEF, ORB, FREAK, AKAZE); DES_HOG (SIFT); Makes sense only in BF mode
             string selectorType = "SEL_KNN"; // SEL_NN, SEL_KNN
 
+            //// STUDENT ASSIGNMENT
+            //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
+            //// TASK MP.6 -> add KNN match selection and perform descriptor distance ratio filtering with t=0.8 in file matching2D.cpp
+
             matchDescriptors(dataBuffer.getItem(2)->keypoints, dataBuffer.getItem(1)->keypoints,
                              dataBuffer.getItem(2)->descriptors, dataBuffer.getItem(1)->descriptors,
                              matches, descriptorType, matcherType, selectorType);
+
+            //// EOF STUDENT ASSIGNMENT
 
             // store matches in current data frame
             dataBuffer.getItem(1)->kptMatches = matches;

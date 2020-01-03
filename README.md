@@ -87,19 +87,19 @@ Descriptors comparison:
 
 Descriptor | Average time, ms  
 :---------:|:----------------  
-BRIEF      | 2.43  
-ORB        | 3.15  
+**BRIEF**      | **2.43**  
+**ORB**        | **3.15**  
 FREAK      | 40.19  
 AKAZE      | 49.68  
-SIFT       | 16.51  
+**SIFT**       | **16.51**  
 
 Detectors and descriptors combinations and average number of matched points:  
 
-|  | BRIEF | ORB  | FREAK | AKAZE | SIFT  
-:-------:|:-----:|:----:|:-----:|:-----:|:-----  
-HARRIS   | 2     | 2    | 4     | -     | 2  
-FAST     | 90    | 105  | 164   | -     | 103  
-BRISK    | 105   | 109  | 87    | -     | 94  
-ORB      | 76    | 56   | 27    | -     | 37  
-AKAZE    | 32    | 34   | 33    | 26    | 24  
-SIFT     | 45    | -    | 71    | -     | 50  
+|        | BRIEF     | ORB      | FREAK   | AKAZE | SIFT  
+:-------:|:---------:|:--------:|:-------:|:-----:|:-----  
+HARRIS   | 2         | 2        | 4       | -     | 2  
+FAST     | 90        | **105**  | **164** | -     | 103  
+BRISK    | **105**   | **109**  | 87      | -     | 94  
+ORB      | 76        | 56       | 27      | -     | 37  
+AKAZE    | 32        | 34       | 33      | 26    | 24  
+SIFT     | 45        | -        | 71      | -     | 50  
